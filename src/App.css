@@ -7,6 +7,29 @@
   pointer-events: none;
 }
 
+.page {
+  box-shadow: 0 0 10px -7px #212121;
+}
+
+.img-center {
+  display: block;
+  margin: 0 auto;
+  width: 10em;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.login-box {
+  box-shadow: 0 0 10px -7px #212121;
+  padding: 1em;
+}
+
+.hidden {
+  display: none;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
