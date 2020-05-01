@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Switch,
@@ -13,63 +13,74 @@ import PageError from "./components/PageError/PageError";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Container from "@material-ui/core/Container";
 import "./App.css";
+import axios from "axios";
 
-class App extends Component {
+export default function App() {
   
-  constructor(props) {
-    super(props);
-    this.state = {
-      rol: 0,
-      pathname: "/login",
-    };
+  const [state, setState] = useState({
+    rol: 0,
+    pathname: "/login",
+  });
+
+  useEffect(() => {
     const userInfo = localStorage.getItem("user");
     let userData = null;
     if (userInfo) {
       userData = JSON.parse(userInfo);
-      this.state = {
+      setState({
         rol: userData.user.rol,
         pathname: "/perfil",
-      };
+      });
     }
-  }
-
-  render() {
-    return (
-      <React.Fragment>
-      <CssBaseline />
-        <Container maxWidth="sm">
-          <Router>
-            <div>
-              <NavBar />
-              <Redirect
-                from="/"
-                to={{
-                  pathname: this.state.pathname,
-                  state: { rol: this.state.rol},
-                }}
-              />
-              <Switch>
-                <Route
-                  path="/login"
-                  component={Login}
-                />
-                <Route
-                  exact
-                  path="/register"
-                  render={() => <Register />}
-                />
-                <Route
-                  exact
-                  path="/perfil"
-                  render={() => <Perfil />}
-                />
-                <Route component={PageError} />
-              </Switch>
-            </div>
-          </Router>
-        </Container>
-      </React.Fragment>
+    axios.interceptors.response.use(
+      response => response,
+      error => {
+        if (error.response.status !== 401) {
+          return Promise.reject(error);
+        }
+        localStorage.removeItem("user");
+        setState({
+          rol: 0,
+          pathname: "/login",
+        });
+      }
     );
-  }
+  }, [])
+
+  return (
+    <React.Fragment>
+    <CssBaseline />
+      <Container maxWidth="sm">
+        <Router>
+          <div>
+            <NavBar />
+            <Redirect
+              from="/"
+              to={{
+                pathname: state.pathname,
+                state: { rol: state.rol},
+              }}
+            />
+            <Switch>
+              <Route
+                path="/login"
+                component={Login}
+              />
+              <Route
+                exact
+                path="/register"
+                render={() => <Register />}
+              />
+              <Route
+                exact
+                path="/perfil"
+                render={() => <Perfil />}
+              />
+              <Route component={PageError} />
+            </Switch>
+          </div>
+        </Router>
+      </Container>
+    </React.Fragment>
+  );
 }
-export default App;
