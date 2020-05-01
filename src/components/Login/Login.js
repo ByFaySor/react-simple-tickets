@@ -49,13 +49,11 @@ export default function Login() {
         });
       })
       .catch((err) => {
-        if (err.response.data.message === "Unauthenticated") {
-          setMessageSnackbar("Datos incorrectos, vuelva a intentarlo");
-        } else {
+        if (err.response) {
           setMessageSnackbar(err.response.data.message);
+          setTransition(() => TransitionUp);
+          setOpen(true);
         }
-        setTransition(() => TransitionUp);
-        setOpen(true);
       });
   }
 
