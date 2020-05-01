@@ -1,10 +1,10 @@
 import axios from "axios";
-axios.defaults.withCredentials = true;
+
 axios.defaults.baseURL = "http://localhost:8000/api/";
+
 const userInfo = localStorage.getItem("user");
-let userData = null;
 if (userInfo) {
-  userData = JSON.parse(userInfo);
+  let userData = JSON.parse(userInfo);
   axios.defaults.headers.common.Authorization = `Bearer ${userData.token}`;
 }
 
@@ -13,7 +13,7 @@ export async function csrfCookie() {
     method: 'get',
     url: 'sanctum/csrf-cookie',
     baseURL: 'http://localhost:8000/',
-   });
+  });
 }
 
 export async function postLogin(credentials) {
