@@ -23,7 +23,7 @@ function TransitionUp(props) {
 export default function Login() {
   const history = useHistory();
   const messageDefault = "Error intento, contacte al administrador";
-  const [open, setOpen] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
   const [transition, setTransition] = useState(undefined);
   const [messageSnackbar, setMessageSnackbar] = useState(messageDefault);
 
@@ -52,13 +52,13 @@ export default function Login() {
         if (err.response) {
           setMessageSnackbar(err.response.data.message);
           setTransition(() => TransitionUp);
-          setOpen(true);
+          setOpenSnackbar(true);
         }
       });
   }
 
   const handleClose = () => {
-    setOpen(false);
+    setOpenSnackbar(false);
   };
 
   const updateField = e => {
@@ -139,7 +139,7 @@ export default function Login() {
            </Grid>
         </form>
         <Snackbar
-          open={open}
+          open={openSnackbar}
           onClose={handleClose}
           autoHideDuration={6000}
           TransitionComponent={transition}

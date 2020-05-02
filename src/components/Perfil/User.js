@@ -128,7 +128,7 @@ export default function PerfilUser() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const messageDefault = "Error intento, contacte al administrador";
-  const [open, setOpen] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
   const [list, setList] = useState(false);
   const [transition, setTransition] = useState(undefined);
   const [messageSnackbar, setMessageSnackbar] = useState(messageDefault);
@@ -173,22 +173,30 @@ export default function PerfilUser() {
         handleRefreshList();
       })
       .catch((err) => {
-        setMessageSnackbar(err.message);
+        if (err.response.status === 405) {
+          setMessageSnackbar(err.response.data.message);
+        } else {
+          setMessageSnackbar(messageDefault);
+        }
         setTransition(() => TransitionUp);
-        setOpen(true);
+        setOpenSnackbar(true);
       });
   };
 
   const handleClose = () => {
-    setOpen(false);
+    setOpenSnackbar(false);
   };
 
-  const handleRefreshList = () => {
+  const handleRefreshList = React.useCallback(() => {
     getList()
         .then((response) => {
           let rowTickets = [];
           response.data.map((ticket) => {
-            rowTickets.push(createData(`#${ticket.code}`, ticket.code === "" ? "EN ESPERA": "APROBADO"));
+            rowTickets.push(
+              createData(
+                `#${ticket.code}`,
+                ticket.code === "" ? "EN ESPERA": "APROBADO")
+              );
             return rowTickets;
           });
           setRows(rowTickets);
@@ -196,16 +204,16 @@ export default function PerfilUser() {
         .catch((err) => {
           setMessageSnackbar("No existen registros");
           setTransition(() => TransitionUp);
-          setOpen(true);
+          setOpenSnackbar(true);
         });
       setList(true);
-  };
+  }, []);
 
   useEffect(() => {
     if (!list) {
       handleRefreshList();
     }
-  });
+  }, [list, handleRefreshList]);
 
   return (
     <Paper className={classes.root}>
@@ -261,7 +269,7 @@ export default function PerfilUser() {
         onChangeRowsPerPage={handleChangeRowsPerPage}
       />
       <Snackbar
-          open={open}
+          open={openSnackbar}
           onClose={handleClose}
           autoHideDuration={6000}
           TransitionComponent={transition}

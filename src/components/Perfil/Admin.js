@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
@@ -18,6 +18,7 @@ import Chip from '@material-ui/core/Chip';
 import Snackbar from "@material-ui/core/Snackbar";
 import Slide from "@material-ui/core/Slide";
 import { getList, patchApprove } from "../../utils/api";
+import shortid from 'shortid';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -133,7 +134,7 @@ export default function PerfilAdmin() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const messageDefault = "Error intento, contacte al administrador";
-  const [open, setOpen] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
   const [list, setList] = useState(false);
   const [transition, setTransition] = useState(undefined);
   const [messageSnackbar, setMessageSnackbar] = useState(messageDefault);
@@ -174,7 +175,7 @@ export default function PerfilAdmin() {
   };
 
   const handleClose = () => {
-    setOpen(false);
+    setOpenSnackbar(false);
   };
 
   const handleApprove = (event, id) => {
@@ -189,20 +190,26 @@ export default function PerfilAdmin() {
         .catch((err) => {
           setMessageSnackbar(messageDefault);
           setTransition(() => TransitionUp);
-          setOpen(true);
+          setOpenSnackbar(true);
           return;
         });
       setList(true);
     }
   };
 
-  const handleRefreshList = () => {
+  const handleRefreshList = React.useCallback(() => {
     getList()
         .then((response) => {
           let rowTickets = [];
           response.data.map((ticket) => {
             ticket.code = ticket.code.toUpperCase();
-            rowTickets.push(createData(ticket.id, ticket.user.name, ticket.user.email, (ticket.code !== "") ? `#${ticket.code}`: "", ticket.code === "" ? "EN ESPERA": "APROBADO"));
+            rowTickets.push(createData(
+              ticket.id,
+              ticket.user.name,
+              ticket.user.email,
+              (ticket.code !== "") ? `#${ticket.code}`: "",
+              ticket.code === "" ? "EN ESPERA": "APROBADO")
+            );
             return rowTickets;
           });
           setRows(rowTickets);
@@ -210,16 +217,16 @@ export default function PerfilAdmin() {
         .catch((err) => {
           setMessageSnackbar("No existen registros");
           setTransition(() => TransitionUp);
-          setOpen(true);
+          setOpenSnackbar(true);
         });
       setList(true);
-  };
+  }, []);
 
   useEffect(() => {
     if (!list) {
       handleRefreshList();
     }
-  });
+  }, [list, handleRefreshList]);
 
   return (
     <Paper className={classes.root}>
@@ -237,15 +244,15 @@ export default function PerfilAdmin() {
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row, index) => {
               return (
-                <TableRow hover role="checkbox" tabIndex={-1} key={row.ticket}>
+                <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                   {columns.map((column) => {
                     const value = row[column.id];
                     return (
-                      <TableCell key={column.id} align="center">
+                      <TableCell align="center" key={shortid.generate()}>
                         {column.id === "ticket" && value === "" && (
                           <Tooltip title="Presione <Enter> para crear" placement="bottom">
                             <TextField
-                              id="ticket"
+                              id={"ticket" + row.id}
                               name="ticket"
                               label="Código Ticket"
                               placeholder="Código Ticket"
@@ -295,7 +302,7 @@ export default function PerfilAdmin() {
         onChangeRowsPerPage={handleChangeRowsPerPage}
       />
       <Snackbar
-          open={open}
+          open={openSnackbar}
           onClose={handleClose}
           autoHideDuration={6000}
           TransitionComponent={transition}
