@@ -15,13 +15,13 @@ export default function Perfil() {
   return (
     <React.Suspense fallback="Cargando, espere un momento ...">
       <div>
-      {rol === 1 && (
-        <PerfilAdmin />
-      )}
-      {rol === 2 && (
-        <PerfilUser />
-      )}
-    </div>
+        {rol === 1 && (
+          <PerfilAdmin />
+        )}
+        {rol === 2 && (
+          <PerfilUser />
+        )}
+      </div>
     </React.Suspense>
   );
 }
