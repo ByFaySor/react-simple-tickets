@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import TextField from "@material-ui/core/TextField";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import InputAdornment from "@material-ui/core/InputAdornment";
+import FormControl from "@material-ui/core/FormControl";
+import FormHelperText from "@material-ui/core/FormHelperText";
 import VpnKeyIcon from "@material-ui/icons/VpnKey";
 import Button from "@material-ui/core/Button";
 import LockOpenIcon from "@material-ui/icons/LockOpen";
@@ -26,6 +28,7 @@ export default function Register() {
   const [open, setOpen] = useState(false);
   const [transition, setTransition] = useState(undefined);
   const [messageSnackbar, setMessageSnackbar] = useState(messageDefault);
+  const [errors, setErrors] = useState({});
 
   const [formRegister, setFormRegister] = useState({
     name: "faysor",
@@ -46,7 +49,12 @@ export default function Register() {
         setOpen(true);
       })
       .catch((err) => {
-        setMessageSnackbar(messageDefault);
+        if (err.response.status === 422) {
+          setErrors(err.response.data.errors);
+          setMessageSnackbar(err.response.data.message);
+        } else {
+          setMessageSnackbar(messageDefault);
+        }
         setTransition(() => TransitionUp);
         setOpen(true);
       });
@@ -75,62 +83,74 @@ export default function Register() {
         <h1 className="text-center">Registrarse </h1>
         <Divider />
         <form noValidate autoComplete="off" onSubmit={handleRegister}>
-          <TextField
-            id="name"
-            name="name"
-            label="Usuario"
-            placeholder="Escribir el nombre de usuario"
-            helperText="Tenga cuidado al ingresar los datos, verique mayúsculas y minúsculas"
-            fullWidth
-            margin="normal"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <AccountCircleIcon />
-                </InputAdornment>
-              ),
-            }}
-            value={formRegister.name || ""}
-            onChange={updateField}
-          />
-          <TextField
-            id="email"
-            name="email"
-            label="Correo electrónico"
-            placeholder="Escribir el correo electrónico"
-            helperText="Tenga cuidado al ingresar los datos, verique mayúsculas y minúsculas"
-            fullWidth
-            margin="normal"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <MailIcon />
-                </InputAdornment>
-              ),
-            }}
-            value={formRegister.email || ""}
-            onChange={updateField}
-          />
-          <TextField
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            label="Contraseña"
-            placeholder="Escribir la contraseña"
-            helperText="Tenga cuidado al ingresar los datos, verique los carácteres especiales"
-            fullWidth
-            margin="normal"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <VpnKeyIcon />
-                </InputAdornment>
-              ),
-            }}
-            value={formRegister.password || ""}
-            onChange={updateField}
-          />
+          <FormControl error fullWidth>
+            <TextField
+              id="name"
+              name="name"
+              label="Usuario"
+              placeholder="Escribir el nombre de usuario"
+              helperText="Tenga cuidado al ingresar los datos, verique mayúsculas y minúsculas"
+              margin="normal"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <AccountCircleIcon />
+                  </InputAdornment>
+                ),
+              }}
+              value={formRegister.name || ""}
+              onChange={updateField}
+            />
+            {(errors.name &&
+              <FormHelperText>{ errors.name[0] }</FormHelperText>
+            )}
+          </FormControl>
+          <FormControl error fullWidth>
+            <TextField
+              id="email"
+              name="email"
+              label="Correo electrónico"
+              placeholder="Escribir el correo electrónico"
+              helperText="Tenga cuidado al ingresar los datos, verique mayúsculas y minúsculas"
+              margin="normal"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <MailIcon />
+                  </InputAdornment>
+                ),
+              }}
+              value={formRegister.email || ""}
+              onChange={updateField}
+            />
+            {(errors.email &&
+              <FormHelperText>{ errors.email[0] }</FormHelperText>
+            )}
+          </FormControl>
+          <FormControl error fullWidth>
+            <TextField
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              label="Contraseña"
+              placeholder="Escribir la contraseña"
+              helperText="Tenga cuidado al ingresar los datos, verique los carácteres especiales"
+              margin="normal"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <VpnKeyIcon />
+                  </InputAdornment>
+                ),
+              }}
+              value={formRegister.password || ""}
+              onChange={updateField}
+            />
+            {(errors.password &&
+              <FormHelperText>{ errors.password[0] }</FormHelperText>
+            )}
+          </FormControl>
           <TextField
             id="password_confirmation"
             name="password_confirmation"
