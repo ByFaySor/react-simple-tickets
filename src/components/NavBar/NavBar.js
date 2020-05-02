@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -26,26 +26,26 @@ export default function NavBar() {
   const history = useHistory();
   const location = useLocation();
   const classes = useStyles();
-  const [auth, setAuth] = React.useState(false);
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
+  const [auth, setAuth] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
+  const handleMenu = (e) => {
+    setAnchorEl(e.currentTarget);
   };
 
   const handleClose = () => {
     setAnchorEl(null);
   };
 
-  const handleCloseSession = (event) => {
-    event.preventDefault();
+  const handleCloseSession = (e) => {
+    e.preventDefault();
     setAuth(false);
     localStorage.removeItem("user");
     history.push("/login");
   };
 
   useEffect(() => {
+    setAnchorEl(null);
     try {
       if (location.state.rol > 0) {
         setAuth(true);
@@ -86,7 +86,7 @@ export default function NavBar() {
                   vertical: 'top',
                   horizontal: 'right',
                 }}
-                open={open}
+                open={Boolean(anchorEl)}
                 onClose={handleClose}
               >
                 <MenuItem onClick={handleCloseSession}>Cerrar sesión</MenuItem>
